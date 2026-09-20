@@ -4,10 +4,9 @@ from crewai import Agent, Task, Crew, LLM
 
 load_dotenv()
 
-gemini_llm = LLM(
-    model="gemini/gemini-3.6-flash",
-    api_key=os.getenv("GEMINI_API_KEY")
-)
+from agents.llm_config import get_llm
+
+gemini_llm = get_llm()
 
 edge_case_identifier = Agent(
     role="QA Edge Case Specialist",

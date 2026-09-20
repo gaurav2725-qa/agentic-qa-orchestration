@@ -8,10 +8,9 @@ from jira_client import fetch_jira_ticket
 
 load_dotenv()
 
-gemini_llm = LLM(
-    model="gemini/gemini-3.6-flash",
-    api_key=os.getenv("GEMINI_API_KEY")
-)
+from agents.llm_config import get_llm
+
+gemini_llm = get_llm()
 
 requirement_extractor = Agent(
     role="Requirements Analyst",
