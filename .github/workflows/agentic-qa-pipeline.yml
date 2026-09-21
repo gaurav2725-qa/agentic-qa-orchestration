@@ -11,7 +11,6 @@ permissions:
 jobs:
   run-automation:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -49,4 +48,8 @@ jobs:
 
       - name: Deploy Allure Report to GitHub Pages
         if: always()
-        uses:
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-report
