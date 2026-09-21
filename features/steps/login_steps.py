@@ -5,7 +5,12 @@ from selenium.webdriver.common.by import By
 
 @given('I open the login page')
 def step_open_login_page(context):
-    context.driver = webdriver.Chrome()
+    from selenium.webdriver.chrome.options import Options
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    context.driver = webdriver.Chrome(options=options)
     context.driver.get("https://the-internet.herokuapp.com/login")
 
 
