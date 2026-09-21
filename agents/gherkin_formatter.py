@@ -1,10 +1,9 @@
 import os
 from dotenv import load_dotenv
-from crewai import Agent, Task, Crew, LLM
+from agents.llm_config import get_llm
+from crewai import Agent, Task, Crew
 
 load_dotenv()
-
-from agents.llm_config import get_llm
 
 gemini_llm = get_llm()
 
@@ -35,27 +34,30 @@ def generate_gherkin(requirements_analysis, edge_cases):
             "Rules:\n"
             "- Start with a Feature: line and a short "
             "description of the feature\n"
-            "- Write one Scenario for the primary happy path, "
+            "- Write ONE Scenario for the primary happy path, "
             "based on the explicit requirements\n"
-            "- Write one additional Scenario for each distinct "
-            "edge case category (Boundary Conditions, "
+            "- Write EXACTLY ONE additional Scenario for each "
+            "of the four categories (Boundary Conditions, "
             "Error/Failure Scenarios, Concurrency Issues, "
-            "Security Concerns) — pick the single most "
-            "important scenario from each category, don't try "
-            "to cover every edge case individually\n"
+            "Security Concerns) — exactly 5 scenarios total, "
+            "no more, no fewer\n"
             "- Use proper Given/When/Then/And syntax\n"
-            "- Keep each step concise and specific — avoid vague "
-            "steps like 'the system works correctly'\n"
-            "- Output ONLY the Gherkin syntax, no extra "
-            "commentary before or after\n\n"
+            "- Keep each step concise and specific — avoid "
+            "vague steps like 'the system works correctly'\n"
+            "- CRITICAL: Output raw Gherkin text only. Do NOT "
+            "wrap any part of the output in markdown code "
+            "fences (no ``` characters anywhere). Do not add "
+            "any commentary, headers, or explanation before "
+            "or after the Gherkin.\n\n"
             "Requirements Analysis:\n" + str(requirements_analysis) +
             "\n\nEdge Cases:\n" + str(edge_cases)
         ),
         expected_output=(
             "A complete, valid Gherkin feature file with a "
-            "Feature declaration and 4-5 Scenarios covering the "
-            "happy path plus one representative scenario per "
-            "edge case category."
+            "Feature declaration and exactly 5 Scenarios "
+            "covering the happy path plus one representative "
+            "scenario per edge case category. No markdown code "
+            "fences, no commentary."
         ),
         agent=gherkin_formatter
     )
@@ -67,7 +69,12 @@ def generate_gherkin(requirements_analysis, edge_cases):
     )
 
     result = crew.kickoff()
-    return result
+
+    # Safety net: strip markdown code fences if the model
+    # added them despite instructions not to
+    clean_result = str(result).replace("```gherkin", "").replace("```", "").strip()
+
+    return clean_result
 
 
 if __name__ == "__main__":
